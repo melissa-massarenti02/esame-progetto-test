@@ -4,28 +4,137 @@
 
 ## React Client Application Routes
 
-- Route `/`: page content and purpose
-- Route `/something/:param`: page content and purpose, param specification
-- ...
+- Route `/`: Il punto di ingresso principale e gateway dinamico dell'applicazione.Il motore di gioco vero e proprio, accessibile esclusivamente agli utenti autenticati tramite una barriera di protezione (Auth Guard).
+- Route `/leaderboard`: La schermata delle statistiche globali e della competizione.
+- Route `/players/:username`: La pagina di dettaglio e profilo pubblico di uno specifico giocatore.
+- Route `*`: La rotta globale per la gestione degli errori e delle pagine non trovate.
 
 ## API Server
 
-- POST `/api/something`
-  - request parameters and request body content
-  - response body content
-- GET `/api/something`
-  - request parameters
-  - response body content
-- POST `/api/something`
-  - request parameters and request body content
-  - response body content
-- ...
+- POST `/api/sessions`
+  - request parameters: none
+  - request body content:
+  ```json
+    {
+      "username": "MarcoTorino",
+      "password": "password123"
+    }
+  ```
+  - response body content:
+  ```json
+    {
+      "id": 1,
+      "username": "MarcoTorino",
+      "best_score": 22
+    }
+  ```
+  - possible responses: `200`OK, `401` Unauthorized, `500` Internal Server Error
+
+- GET `/api/sessions/current`
+  - request parameters: none
+  - request body content: none
+  - response body content:
+  ```json
+    {
+      "id": 1,
+      "username": "MarcoTorino",
+      "best_score": 22
+    }
+  ```
+  - possible responses: `200`OK, `401` Unauthorized
+  
+- DELETE `/api/sessions/current`
+  - request parameters: none
+  - request body content: none
+  - response body content: NONE
+  - possible responses: `200`OK, `401` Unauthorized
+
+  - GET `/api/network`
+  - request parameters: none
+  - request body content: none
+  - response body content:
+  ```json
+    {
+      "stations": [
+        {"id": 1, "name": "Porta Nuova", "is_interchange": 1},
+        {"id": 2, "name": "Mole Antonelliana", "is_interchange": 0},
+        {"id": 3, "name": "Piazza Castello", "is_interchange": 1}
+      ],
+      "connections": [
+        {"id": 1, "station_a_name": "Mole Antonelliana", "station_b_name": "Porta Nuova", "line_name": "Linea Rossa", "line_color": "#FF00A0"},
+        {"id": 2, "station_a_name": "Piazza Castello", "station_b_name": "Porta Nuova", "line_name": "Linea Blu", "line_color": "#00E5FF"},
+        ...
+      ]
+    }
+  ```
+  - possible responses: `200`OK, `401` Unauthorized
+
+- POST `/api/games`
+  - request parameters: none
+  - request body content: none
+  - response body content:
+  ```json
+    {
+      "startStation": "Porta Nuova",
+      "endStation": "Mole Antonelliana",
+      "initialCoins": 20
+    }
+  ```
+  - possible responses: `200`OK, `401` Unauthorized
+  
+- POST `/api/games/validate`
+  - request parameters: none
+  - request body content: none
+  ```json
+    {
+      "route": [
+        {"from": "Porta Nuova", "to": "Piazza Castello"},
+        {"from": "Piazza Castello", "to": "Mole Antonelliana"}
+      ]
+    }
+  ```
+  - response body content:
+  ```json
+    {
+      "isValid": true,
+      "finalScore": 18,
+      "steps": [
+        {
+          "from": "Porta Nuova",
+          "to": "Piazza Castello",
+          "description": "Binario corretto, viaggio scorrevole.",
+          "effect": 0
+        },
+        {
+          "from": "Piazza Castello",
+          "to": "Mole Antonelliana",
+          "description": "Controllore pignolo, multa sul biglietto!",
+          "effect": -2
+        }
+      ]
+    }
+  ```
+  - possible responses: `200`OK, `400` Bad Request, `401` Unauthorized
+
+- GET `/api/leaderboard`
+  - request parameters: none
+  - request body content: none
+  - response body content:
+  ```json
+    [
+      {"username": "MarcoTorino", "best_score": 24},
+      {"username": "AliceCyber", "best_score": 18},
+      {"username": "UserTest3", "best_score": 12}
+    ]
+  ```
+  - possible responses: `200`OK, `401` Unauthorized 
 
 ## Database Tables
 
-- Table `users` - contains xx yy zz
-- Table `something` - contains ww qq ss
-- ...
+- Table `users` - contains: user_id, username, hash, salt, best_score
+- Table `stations` - contains: station_id, name, is_interchange
+- Table `connections` - contains: connection_id, station_a_name, station_b_name, line_name, line_color
+- Table `events` - contains: event_id, description, effect
 
 ## Main React Components
 
