@@ -6,7 +6,7 @@ import LocalStrategy from "passport-local";
 import {getUserByCredentials, getUserById} from "./dao/user-dao.js";
 import {getStations, getConnections} from "./dao/map-dao.js";
 import {getLeaderboard} from "./dao/leaderboard-dao.js";
-import {getRandomStartEndStations} from "./dao/game-dao.js";
+import {getRandomStartEndStations, shortestPath} from "./dao/game-dao.js";
 
 const app = express();
 const port = 3001;
@@ -126,10 +126,36 @@ app.get("/api/leaderboard", loggedIn, async (req, res) => {
 // --- POST /api/game ---
 app.post("/api/game", loggedIn, async (req, res) => {
   try {
-    const config = await getRandomStartEndStations();
-    res.status(200).json({ startStation: config.startStation, endStation: config.endStation, initialCoins: 20 });
-  } catch (error) {
-    res.status(401).json({ message: "Utente non autenticato, sessione non valida" });
+
+    let validPair = false;
+    let startStation = "", endStation = "";
+    let distance = 0;
+    let attempts = 0;
+    
+    while (!validPair && attempts < 50) {
+      const config = await getRandomStartEndStations();
+      startStation = config.startStation;
+      endStation = config.endStation;
+      distance = await shortestPath(startStation, endStation);
+      attempts++;
+
+      if (distance >= 3) {
+        validPair = true;
+      }
+    }
+
+    if (!validPair) {
+      return res.status(500).json({ message: "Impossibile trovare una coppia di stazioni valida" });
+    }
+    
+    req.session.currentRound = {
+      startStation: startStation,
+      endStation: endStation,
+      initialCoins: 20
+    };
+    res.status(200).json({ startStation: startStation, endStation: endStation, initialCoins: 20 });
+  }catch (error) {
+    res.status(500).json({ message: "Errore durante la creazione della partita, errore server" });
   }
 });
 

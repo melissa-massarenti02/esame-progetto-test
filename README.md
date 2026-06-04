@@ -79,7 +79,7 @@
       "initialCoins": 20
     }
   ```
-  - possible responses: `200`OK, `401` Unauthorized
+  - possible responses: `200`OK, `401` Unauthorized, '500' errore server
   
 - POST `/api/games/validate`
   - request parameters: none
