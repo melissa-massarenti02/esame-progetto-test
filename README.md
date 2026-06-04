@@ -1,12 +1,11 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/iZes9Qfg)
-# Exam #N: "Exam Title"
-## Student: s123456 LASTNAME FIRSTNAME 
+# Exam #1: "Ultima Corsa"
+## Student: s351695 MASSARENTI MELISSA 
 
 ## React Client Application Routes
 
 - Route `/`: Il punto di ingresso principale e gateway dinamico dell'applicazione.Il motore di gioco vero e proprio, accessibile esclusivamente agli utenti autenticati tramite una barriera di protezione (Auth Guard).
 - Route `/leaderboard`: La schermata delle statistiche globali e della competizione.
-- Route `/players/:username`: La pagina di dettaglio e profilo pubblico di uno specifico giocatore.
 - Route `*`: La rotta globale per la gestione degli errori e delle pagine non trovate.
 
 ## API Server
@@ -150,8 +149,9 @@
 
 ## Users Credentials
 
-- username, password (plus any other requested info)
-- username, password (plus any other requested info)
+- username: `Melissa02`, password: `PoliTo26` 
+- username: `AleColombs`, password: `WebApp2026`
+- username: `Sara11`, password: `Exam2026`
 
 ## Use of AI Tools
 Briefly describe whether you used any AI tools (e.g., ChatGPT, GitHub Copilot, Claude) while working on this project, for which purposes (e.g., clarifying concepts, debugging, generating code), and how you verified or adapted their output.

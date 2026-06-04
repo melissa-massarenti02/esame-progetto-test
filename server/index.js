@@ -4,6 +4,9 @@ import session from "express-session";
 import passport from "passport";
 import LocalStrategy from "passport-local";
 import {getUserByCredentials, getUserById} from "./dao/user-dao.js";
+import {getStations, getConnections} from "./dao/map-dao.js";
+import {getLeaderboard} from "./dao/leaderboard-dao.js";
+import {getRandomStartEndStations} from "./dao/game-dao.js";
 
 const app = express();
 const port = 3001;
@@ -95,6 +98,37 @@ app.get("/api/sessions/current", (req, res) => {
   if (req.isAuthenticated()) {
     res.status(200).json({ user: req.user });
   }else {
+    res.status(401).json({ message: "Utente non autenticato, sessione non valida" });
+  }
+});
+
+// --- GET /api/network ---
+app.get("/api/network", loggedIn, async (req, res) => {
+  try {
+    const stations = await getStations();
+    const connections = await getConnections();
+    res.status(200).json({ stations: stations, connections: connections });
+  } catch (error) {
+    res.status(500).json({ message: "Errore durante il recupero delle informazioni sulla rete, errore server" });
+  }
+});
+
+// --- GET /api/leaderboard ---
+app.get("/api/leaderboard", loggedIn, async (req, res) => {
+  try {
+    const leaderboard = await getLeaderboard();
+    res.status(200).json({ leaderboard: leaderboard });
+  } catch (error) {
+    res.status(401).json({ message: "Utente non autenticato, sessione non valida" });
+  }
+});
+
+// --- POST /api/game ---
+app.post("/api/game", loggedIn, async (req, res) => {
+  try {
+    const config = await getRandomStartEndStations();
+    res.status(200).json({ startStation: config.startStation, endStation: config.endStation, initialCoins: 20 });
+  } catch (error) {
     res.status(401).json({ message: "Utente non autenticato, sessione non valida" });
   }
 });
