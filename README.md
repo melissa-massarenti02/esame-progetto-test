@@ -46,7 +46,7 @@
 - DELETE `/api/sessions/current`
   - request parameters: none
   - request body content: none
-  - response body content: NONE
+  - response body content: none
   - possible responses: `200`OK, `401` Unauthorized
 
   - GET `/api/network`
