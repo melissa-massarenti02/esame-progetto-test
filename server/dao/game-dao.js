@@ -69,3 +69,55 @@ export const shortestPath = async (start, end) => {
     }
     return -1;
 };
+
+// --- controllo esistenza collegamento tra due stazioni ---
+export const validatePath = (fromStation, toStation) => {
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT line_name FROM connections WHERE (station_a_name = ? AND station_b_name = ?) OR (station_a_name = ? AND station_b_name = ?)';
+        db.get(sql, [fromStation, toStation, toStation, fromStation], (err, row) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve(!!row);
+        });
+    });
+};
+
+// --- verifica se una stazione è anche un nodo di interscambio ---
+export const interchangeStatus = (stationName) => {
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT is_interchange FROM stations WHERE name = ?';
+        db.get(sql, [stationName], (err, row) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve(row ? row.is_interchange === 1 : false);
+        });
+    });
+};
+
+// --- aggiornamento best score nel db, se score corrente è migliore ---
+export const updateBestScore = (userId, score) => {
+    return new Promise((resolve, reject) => {
+        const sql = 'UPDATE users SET best_score = ? WHERE id = ? AND ? > best_score';
+        db.run(sql, [score, userId, score], function(err) {
+            if (err) {
+                return reject(err);
+            }
+            resolve(this.changes > 0);
+        });
+    });
+};
+
+// --- estrazione degli eventi di gioco da database ---
+export const getGameEvents = () => {
+    return new Promise((resolve, reject) => {
+        const sql = 'SELECT description, effect FROM events';
+        db.all(sql, [], (err, rows) => {
+            if (err) {
+                return reject(err);
+            }
+            resolve(rows);
+        });
+    });
+};
