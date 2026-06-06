@@ -3,6 +3,7 @@ import cors from "cors";
 import session from "express-session";
 import passport from "passport";
 import LocalStrategy from "passport-local";
+import dayjs from "dayjs";
 import {getUserByCredentials, getUserById} from "./dao/user-dao.js";
 import {getStations, getConnections} from "./dao/map-dao.js";
 import {getLeaderboard} from "./dao/leaderboard-dao.js";
@@ -151,13 +152,22 @@ app.post("/api/games", loggedIn, async (req, res) => {
     if (!validPair) {
       return res.status(500).json({ message: "Impossibile trovare una coppia di stazioni valida" });
     }
+
+    // --- gestione logoca del timer server 90" ---
+    const startTime = dayjs();
+    const stopTime = startTime.add(90, "second");
     
     req.session.currentRound = {
       startStation: startStation,
       endStation: endStation,
-      initialCoins: 20
+      initialCoins: 20,
+      startTime: startTime.toISOString(),
+      stopTime: stopTime.toISOString()
     };
-    res.status(200).json({ startStation: startStation, endStation: endStation, initialCoins: 20 });
+
+    const timeRemaining = stopTime.diff(dayjs(), "second");
+
+    res.status(200).json({ startStation: startStation, endStation: endStation, initialCoins: 20, timeRemaining: Math.max(0, timeRemaining) });
   }catch (error) {
     res.status(500).json({ message: "Errore durante la creazione della partita, errore server" });
   }
@@ -176,7 +186,19 @@ app.post("/api/games/validate", loggedIn, async (req, res) => {
       return res.status(400).json({ message: "Nessuna partita in corso da validare" });
     }
 
+    const now = dayjs();
+    const stopTime = dayjs(sessionGame.stopTime);
+
+    const expiredTime = stopTime.isBefore(now);
+
     let validationResult = true;
+    let timeMessage = "";
+
+    if (expiredTime) {
+      validationResult = false;
+      timeMessage = "Tempo massimo di 90 secondi scaduto! Richiesta fuori tempo massimo.";
+    }
+
     let actualCoins = sessionGame.initialCoins; 
     const steps = [];
     const dbEvents = await getGameEvents();
@@ -265,7 +287,7 @@ app.post("/api/games/validate", loggedIn, async (req, res) => {
     let finalScore = 0;
     if (!validationResult) {
       finalScore = 0;
-      steps.length = 0;
+      steps.length = 0; 
     } else {
       finalScore = Math.max(0, actualCoins);
     }
@@ -279,7 +301,8 @@ app.post("/api/games/validate", loggedIn, async (req, res) => {
     return res.status(200).json({ 
       isValid: validationResult, 
       finalScore: finalScore, 
-      steps: steps 
+      steps: steps,
+      message: timeMessage || (validationResult ? "Percorso valido, punteggio calcolato" : "Percorso non valido, punteggio 0")
     });
 
   } catch (error) {
