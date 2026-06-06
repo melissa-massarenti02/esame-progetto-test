@@ -30,8 +30,13 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 passport.use(new LocalStrategy(async function verify(username, password, callback) {
     try {
+        if (!emailRegex.test(username)) {
+            return callback(null, false, { message: "Formato email non valido" });
+        }
         const user = await getUserByCredentials(username, password);
         if (!user) {
             return callback(null, false, { message: "Username o password errati" });
@@ -78,7 +83,7 @@ app. post("/api/sessions", function (req, res, next) {
       if (err) {
         return next(err);
       }
-      return res.status(200).json({ message: "Sessione creata con successo", user });
+      return res.status(200).json({ id: user.user_id, username: user.username, best_score: user.best_score });
     });
   })(req, res, next);
 });
@@ -96,7 +101,7 @@ app.delete("/api/sessions/current", loggedIn, (req, res) => {
 // --- GET /api/sessions/current ---
 app.get("/api/sessions/current", (req, res) => {
   if (req.isAuthenticated()) {
-    res.status(200).json({ user: req.user });
+    res.status(200).json({ id: req.user.user_id, username: req.user.username, best_score: req.user.best_score });
   }else {
     res.status(401).json({ message: "Utente non autenticato, sessione non valida" });
   }
@@ -122,8 +127,8 @@ app.get("/api/leaderboard", loggedIn, async (req, res) => {
     return res.status(500).json({ message: "Errore durante il recupero della classifica, errore server" });  }
 });
 
-// --- POST /api/game ---
-app.post("/api/game", loggedIn, async (req, res) => {
+// --- POST /api/games ---
+app.post("/api/games", loggedIn, async (req, res) => {
   try {
 
     let validPair = false;
@@ -158,11 +163,11 @@ app.post("/api/game", loggedIn, async (req, res) => {
   }
 });
 
-// --- POST /api/game/validate ---
-app.post("/api/game/validate", loggedIn, async (req, res) => {
+// --- POST /api/games/validate ---
+app.post("/api/games/validate", loggedIn, async (req, res) => {
   try {
-    const { path } = req.body; 
-    if (!path || !Array.isArray(path) || path.length === 0) {
+    const { route } = req.body; 
+    if (!route || !Array.isArray(route) || route.length === 0) {
       return res.status(400).json({ message: "Percorso non valido, formato non corretto" });
     }
 
@@ -177,19 +182,19 @@ app.post("/api/game/validate", loggedIn, async (req, res) => {
     const dbEvents = await getGameEvents();
     const usedTracks = new Set();
 
-    if (path[0].from !== sessionGame.startStation) {
+    if (route[0].from !== sessionGame.startStation) {
       validationResult = false;
     }
 
     let currentLine = null;
 
     if (validationResult) {
-      for (let i = 0; i < path.length; i++) {
-        const track = path[i];
+      for (let i = 0; i < route.length; i++) {
+        const track = route[i];
         const fromSt = track.from;
         const toSt = track.to;
 
-        if (i > 0 && fromSt !== path[i - 1].to) {
+        if (i > 0 && fromSt !== route[i - 1].to) {
           validationResult = false;
           break;
         }
@@ -252,7 +257,7 @@ app.post("/api/game/validate", loggedIn, async (req, res) => {
       }
     }
 
-    const lastTrack = path[path.length - 1];
+    const lastTrack = route[route.length - 1];
     if (validationResult && (!lastTrack || lastTrack.to !== sessionGame.endStation)) {
       validationResult = false;
     }

@@ -149,9 +149,9 @@
 
 ## Users Credentials
 
-- username: `Melissa02`, password: `PoliTo26` 
-- username: `AleColombs`, password: `WebApp2026`
-- username: `Sara11`, password: `Exam2026`
+- username: `melissa@polito.it`, password: `PoliTo26` 
+- username: `ale@webapp.it`, password: `WebApp2026`
+- username: `sara@exam.it`, password: `Exam2026`
 
 ## Use of AI Tools
 Briefly describe whether you used any AI tools (e.g., ChatGPT, GitHub Copilot, Claude) while working on this project, for which purposes (e.g., clarifying concepts, debugging, generating code), and how you verified or adapted their output.

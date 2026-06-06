@@ -98,9 +98,9 @@ function initializeDatabase() {
 
         // --- popolamento tabella users ---
         const genUser = db.prepare(`INSERT INTO users (username, hash, salt, best_score) VALUES (?, ?, ?, ?)`);
-        genUser.run('Melissa02', user1.hash, user1.salt, 24);
-        genUser.run('AleColombs', user2.hash, user2.salt, 15);
-        genUser.run('Sara11', user3.hash, user3.salt, 0);
+        genUser.run('melissa@polito.it', user1.hash, user1.salt, 24);
+        genUser.run('ale@webapp.it', user2.hash, user2.salt, 15);
+        genUser.run('sara@exam.it', user3.hash, user3.salt, 0);
         genUser.finalize((err) => {
             if (err) {
                 console.error('Errore durante l\'inserimento degli utenti:', err.message);
@@ -156,9 +156,9 @@ function initializeDatabase() {
         genConnection.run('Piazza Castello', 'Gran Madre', 'Linea 3', 'Verde');
 
         // --- Linea 4: GIALLA ---
-        genConnection.run('Porta Susa', 'Politecnico', 'Linea 4', 'Giallo');
-        genConnection.run('Politecnico', 'Re Umberto', 'Linea 4', 'Giallo');
-        genConnection.run('Re Umberto', 'Piazza Castello', 'Linea 4', 'Giallo');
+        genConnection.run('Porta Susa', 'Piazza San Carlo', 'Linea 4', 'Giallo');
+        genConnection.run('Piazza San Carlo', 'Porta Nuova', 'Linea 4', 'Giallo');
+        genConnection.run('Porta Nuova', 'Piazza Castello', 'Linea 4', 'Giallo');
         genConnection.run('Piazza Castello', 'Gran Madre', 'Linea 4', 'Giallo');
         genConnection.finalize((err) => {
             if (err) {

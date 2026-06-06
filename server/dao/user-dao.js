@@ -31,13 +31,18 @@ export const getUserByCredentials = (username, password) => {
                 const user = {id: row.user_id, username: row.username, best_score: row.best_score};
 
                 // --- ricalcolo hash con sale memorizzato ---
-                const createdHash = crypto.scryptSync(password, row.salt, 32).toString('hex');
-
-                if (crypto.timingSafeEqual(Buffer.from(createdHash, 'hex'), Buffer.from(createdHash, 'hex'))) {
-                    resolve(user);
-                } else {
-                    resolve({ error: 'Password errata.' });
-                }
+                crypto.scrypt(password, row.salt, 32, function (err, hasPW) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        const dbHash = Buffer.from(row.hash, 'hex');
+                        if (!crypto.timingSafeEqual(dbHash, hasPW)) {
+                            resolve(false);
+                        } else {
+                            resolve(user);
+                        }
+                    }
+                });
             }
         });
     });
