@@ -6,7 +6,7 @@ import LocalStrategy from "passport-local";
 import {getUserByCredentials, getUserById} from "./dao/user-dao.js";
 import {getStations, getConnections} from "./dao/map-dao.js";
 import {getLeaderboard} from "./dao/leaderboard-dao.js";
-import {getRandomStartEndStations, shortestPath, validatePath, updateBestScore, getGameEvents} from "./dao/game-dao.js";
+import {getRandomStartEndStations, shortestPath, validatePath, updateBestScore, getGameEvents, getStationInterchangeStatus} from "./dao/game-dao.js";
 
 const app = express();
 const port = 3001;
@@ -119,8 +119,7 @@ app.get("/api/leaderboard", loggedIn, async (req, res) => {
     const leaderboard = await getLeaderboard();
     res.status(200).json({ leaderboard: leaderboard });
   } catch (error) {
-    res.status(401).json({ message: "Utente non autenticato, sessione non valida" });
-  }
+    return res.status(500).json({ message: "Errore durante il recupero della classifica, errore server" });  }
 });
 
 // --- POST /api/game ---
@@ -159,41 +158,6 @@ app.post("/api/game", loggedIn, async (req, res) => {
   }
 });
 
-// --- POST /api/game ---
-app.post("/api/game", loggedIn, async (req, res) => {
-  try {
-    let validPair = false;
-    let startStation = "", endStation = "";
-    let distance = 0;
-    let attempts = 0;
-    
-    while (!validPair && attempts < 50) {
-      const config = await getRandomStartEndStations();
-      startStation = config.startStation;
-      endStation = config.endStation;
-      distance = await shortestPath(startStation, endStation);
-      attempts++;
-
-      if (distance >= 3) {
-        validPair = true;
-      }
-    }
-
-    if (!validPair) {
-      return res.status(500).json({ message: "Impossibile trovare una coppia di stazioni valida" });
-    }
-    
-    req.session.currentRound = {
-      startStation: startStation,
-      endStation: endStation,
-      initialCoins: 20
-    };
-    res.status(200).json({ startStation: startStation, endStation: endStation, initialCoins: 20 });
-  } catch (error) {
-    res.status(500).json({ message: "Errore durante la creazione della partita, errore server" });
-  }
-});
-
 // --- POST /api/game/validate ---
 app.post("/api/game/validate", loggedIn, async (req, res) => {
   try {
@@ -208,10 +172,9 @@ app.post("/api/game/validate", loggedIn, async (req, res) => {
     }
 
     let validationResult = true;
-    let actualCoins = sessionGame.initialCoins; // 20 monete di partenza
+    let actualCoins = sessionGame.initialCoins; 
     const steps = [];
     const dbEvents = await getGameEvents();
-    
     const usedTracks = new Set();
 
     if (path[0].from !== sessionGame.startStation) {
@@ -233,24 +196,39 @@ app.post("/api/game/validate", loggedIn, async (req, res) => {
 
         const trackKey = [fromSt, toSt].sort().join(" <-> ");
         if (usedTracks.has(trackKey)) {
-          validationResult = false; // Tratta duplicata!
+          validationResult = false;
           break;
         }
         usedTracks.add(trackKey);
 
         const connectionDetails = await validatePath(fromSt, toSt);
         if (!connectionDetails) {
-          validationResult = false; // La tratta non esiste nella rete
+          validationResult = false; 
           break;
         }
 
-        const trackLine = connectionDetails.line_name;
+        const realDetails = Array.isArray(connectionDetails) ? connectionDetails[0] : connectionDetails;
+        if (!realDetails) {
+          validationResult = false;
+          break;
+        }
+
+        const trackLine = realDetails.line_name || realDetails.linea || realDetails.line;
 
         if (currentLine && currentLine !== trackLine) {
-          // L'utente sta cambiando linea. Controlliamo se la stazione di transito (fromSt) è di interscambio
-          const isInterchange = await getStationInterchangeStatus(fromSt);
+          const interchangeResult = await getStationInterchangeStatus(fromSt);
+          
+          const isInterchange = interchangeResult && (
+            interchangeResult.is_interchange === 1 || 
+            interchangeResult.is_interchange === true ||
+            interchangeResult.interchange === 1 ||
+            interchangeResult.interchange === true ||
+            interchangeResult === 1 ||
+            interchangeResult === true
+          );
+
           if (!isInterchange) {
-            validationResult = false; // Cambio linea illegale in una stazione normale!
+            validationResult = false; 
             break;
           }
         }

@@ -1,4 +1,4 @@
-import '../db.js';
+import db from '../db.js';
 
 // --- recupero delle stanze di gioco esistenti nel db ---
 export const getStations = () => {

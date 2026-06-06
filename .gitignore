@@ -6,3 +6,4 @@ node_modules/
 Thumbs.db
 Desktop.ini
 commit-convention.md
+api_tests.http

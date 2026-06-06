@@ -1,4 +1,4 @@
-import '../db.js';
+import db from '../db.js';
 
 // --- recupero score list utenti in ordine decrescente ---
 export const getLeaderboard = () => {
