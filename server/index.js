@@ -12,11 +12,13 @@ import {getRandomStartEndStations, shortestPath, validatePath, updateBestScore, 
 const app = express();
 const port = 3001;
 
-app.use(express.json());
 app.use(cors({
-  origin: "http://localhost:5173",
-  credentials: true
+  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+app.use(express.json());
 
 app.use(session({
   secret: "secret-key",
@@ -24,8 +26,10 @@ app.use(session({
   saveUninitialized: false,
   cookie: { 
     httpOnly: true,
-    secure: false, 
-    sameSite: "lax"}
+    secure: false,
+    sameSite: 'lax',
+    maxAge: 3600000,
+    path: '/'}
 }));
 
 app.use(passport.initialize());
@@ -56,7 +60,7 @@ passport.deserializeUser(async (id, callback) => {
     try {
         const user = await getUserById(id);
         if (!user) {
-            return callback(new Error("Utente non trovato"));
+            return callback(null, false);
         }
         callback(null, user);
     } catch (error) {
@@ -311,6 +315,6 @@ app.post("/api/games/validate", loggedIn, async (req, res) => {
 });
 
 // --- avvio del server ---
-app.listen(port, () => {
-  console.log(`Server listening at http://localhost:${port}`);
+app.listen(port, '127.0.0.1', () => {
+  console.log(`Server listening at http://127.0.0.1:${port}`);
 });

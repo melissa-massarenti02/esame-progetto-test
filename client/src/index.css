@@ -1,23 +1,29 @@
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
+  /* --- PALETTE PLANCIA GIOCO: COLORI PANNA, CREMA (TEMA VINTAGE, TECH) --- */
+  --bg: #f4f3ec;             
+  --bg-card: #eae8df;        
+  --text: #2b262d;           
+  --text-h: #08060d;         
+  --border: #d5d3ca;         
+  --code-bg: #e4e2d7;
+  --title:#fb00ff;        
+  
+  /* --- DETTAGLI E ACCENTI FLUO DAL TABELLONE DI GIOCO --- */
+  --accent-blue: #00f0ff;    
+  --accent-green: #00ff9d;   
+  --accent-red: #ff3355;     
+  --accent-yellow: #ffee00;  
+  
   --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+    rgba(0, 0, 0, 0.08) 0 10px 15px -3px, rgba(0, 0, 0, 0.04) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: "SF Pro Display", system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: "SF Pro Display", system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: light dark;
+  color-scheme: light;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -32,26 +38,18 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
+    --bg: #1c1b17;
+    --bg-card: #282622;
+    --text: #cbd5e1;
+    --text-h: #f8fafc;
+    --border: #3e3a33;
+    --code-bg: #2f2c26;
   }
 }
 
 body {
   margin: 0;
+  background: var(--bg);
 }
 
 #root {
@@ -64,24 +62,30 @@ body {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  background: var(--bg);
 }
 
 h1,
-h2 {
+h2,
+h3,
+h4 {
   font-family: var(--heading);
-  font-weight: 500;
+  font-weight: 700;
   color: var(--text-h);
+  letter-spacing: -0.5px;
 }
 
 h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
+  font-size: 48px;
+  letter-spacing: -1.5px;
   margin: 32px 0;
+  text-transform: uppercase;
   @media (max-width: 1024px) {
-    font-size: 36px;
+    font-size: 34px;
     margin: 20px 0;
   }
 }
+
 h2 {
   font-size: 24px;
   line-height: 118%;
@@ -91,21 +95,189 @@ h2 {
     font-size: 20px;
   }
 }
+
 p {
   margin: 0;
-}
-
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+  color: var(--text);
 }
 
 code {
+  font-family: var(--mono);
   font-size: 15px;
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-h);
+  display: inline-flex;
 }
+
+/* --- CLASSI COMPORTAMENTALI PER I BOTTONI FLUO + ELEMENTI TECH --- */
+
+button[type="submit"], .btn-action {
+  font-family: var(--sans);
+  background-color: #1e1b18 !important; /* Blocco scuro opaco */
+  color: var(--accent-green) !important; /* Testo verde acido fluorescente */
+  border: 2px solid var(--accent-green) !important;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(0, 255, 157, 0.2);
+  transition: all 0.2s ease;
+}
+
+button[type="submit"]:hover:not(:disabled) {
+  background-color: var(--accent-green) !important;
+  color: #1e1b18 !important;
+  box-shadow: 0 0 16px rgba(0, 255, 157, 0.5);
+}
+
+input[type="text"], input[type="password"] {
+  background-color: var(--code-bg) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text-h) !important;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-family: var(--sans);
+}
+
+input[type="text"]:focus, input[type="password"]:focus {
+  border-color: var(--accent-blue) !important;
+  outline: none;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.3) !important;
+}
+
+/* --- LOGIN CSS --- */
+.login-page-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.login-card {
+  position: relative;
+  background-color: rgba(240, 238, 230, 0.95);
+  padding: 40px 30px;
+  padding-top: 100px;
+  border-radius: 24px;
+  border: 2px solid var(--border);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  max-width: 800px;
+  max-height: 450px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 50px;
+}
+
+.rules-button {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  background-color: #1e1b18;
+  color: var(--accent-blue);
+  border: 2px solid var(--accent-blue);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 11;
+}
+
+.login-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  width: 100%;
+  height: 100%;
+  max-width: 800px;
+  max-height: 500px;
+  margin-top: 100px;
+}
+
+.login-form-wrapper {
+  flex: 1 1 380px;
+  background-color: var(--bg);
+  padding: 30px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  text-align: left;
+  min-width: 300px;
+}
+
+.image-wrapper {
+  position: absolute;
+  top: -70px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.cover-image-box {
+  width: 300px; /* Dimensione fissa per l'effetto */
+  height: 200px;
+  border: 4px solid var(--accent-green);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cover-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.auth-title { margin: 0 0 4px 0; font-size: 20px; text-transform: uppercase; color: var(--text-h); }
+.auth-subtitle { font-size: 14px; color: var(--title); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.error-message { color: #fff; background-color: var(--accent-red); padding: 10px; border-radius: 6px; margin-bottom: 16px; font-size: 13px; font-weight: bold; }
+
+.login-form { display: flex; flex-direction: column; gap: 16px; }
+.login-form label { display: block; margin-bottom: 6px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+.login-form input { width: 100%; box-sizing: border-box; padding: 10px; }
+.login-form button { width: 100%; margin-top: 8px; }
+
+.rules-overlay {
+  position: absolute;
+  top: 75px;
+  left: 24px;
+  width: 320px;
+  background-color: var(--bg);
+  border: 2px solid var(--accent-blue);
+  border-radius: 12px;
+  padding: 16px;
+  z-index: 10;
+  box-shadow: var(--shadow);
+  text-align: left;
+}
+
+.rules-title { margin: 0 0 8px 0; font-size: 14px; color: var(--text-h); text-transform: uppercase; }
+.rules-list { margin: 0; padding-left: 16px; font-size: 12.5px; color: var(--text); display: flex; flex-direction: column; gap: 8px; }
